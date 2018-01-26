@@ -1,0 +1,4 @@
+@charset "ISO-8859-1";
+.buttonFinish.buttonDisabled.btn.btn-default.finish{
+	display:none;
+}

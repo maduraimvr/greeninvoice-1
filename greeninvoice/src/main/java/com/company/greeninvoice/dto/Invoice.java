@@ -2,6 +2,7 @@ package com.company.greeninvoice.dto;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -26,6 +27,8 @@ import lombok.Setter;
 @Table(name="invoiceDto")
 public class Invoice implements Serializable{
 	
+	private Timestamp createdTime;
+	
 	@Id
 	private String invoiceNumber;
 	
@@ -36,6 +39,18 @@ public class Invoice implements Serializable{
 	@OneToMany(cascade=CascadeType.ALL)
 	private List<ItemDetail> itemdetailsList;
 	
+	private float subTotalAmount;
+	
+	private float taxPercentage;
+	
+	private float taxAmount;
+	
+	private float shippingCharges;
+	
 	private float totalAmount;
+	
+	private String paymentMethod;
+	
+	private String invoiceStatus;	
 	
 }

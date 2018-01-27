@@ -6,6 +6,61 @@
 $(document).ready(function() {
     var table = $('#item-table').DataTable();
  
+    
+    //set default and tax amount values
+    $('#tax-text-input').val('0.00 %');
+    
+    $('#shipping-charges-text-input').val("₹ 0.00");
+    
+  //inputmask for fixing tax-input-charges
+    $('#tax-text-input').inputmask("numeric", {
+        radixPoint: ".",
+        groupSeparator: ",",
+        digits: 2,
+        autoGroup: true,
+        max:100,
+        suffix: ' %', //Space after $, this will not truncate the first character.
+        rightAlign: true
+    });
+    
+    //inputmask for fixing shipping-charges
+    $('#shipping-charges-text-input').inputmask("numeric", {
+        radixPoint: ".",
+        groupSeparator: ",",
+        digits: 2,
+        autoGroup: true,
+        prefix: '₹ ', //Space after $, this will not truncate the first character.
+        rightAlign: true
+    });
+    
+    
+    $('#tax-text-input').bind('change', function(e) {
+    	if($('#tax-text-input').val()==''){
+    		$('#tax-text-input').val('0.00 %');
+    	}
+    	var unformattedTax=$('#tax-text-input').val();
+    	if(unformattedTax!=='100 %'){
+    	unformattedTax=unformattedTax.replace(/[% ,]/g,'');
+    	$('#tax-text-input').val(parseFloat(unformattedTax).toFixed(2));
+    	}else{
+    		$('#tax-text-input').val(unformattedTax);
+    	}
+    	calculateTotalBillAmount();
+    });
+    
+    $('#shipping-charges-text-input').bind('change', function(e) {
+    	if($('#shipping-charges-text-input').val()==''){
+    		$('#shipping-charges-text-input').val('₹ 0.00');
+    	}
+    	var unformattedAmount=$('#shipping-charges-text-input').val();
+    	unformattedAmount=unformattedAmount.replace(/[₹ ,]/g,'');
+    	var formattedAmount=formatAmount(parseFloat(unformattedAmount), "₹ ");
+    	$('#shipping-charges-text-input').val(formattedAmount);
+    	calculateTotalBillAmount();
+    });
+    
+    
+    //event for sumbit button
     $('#submit').click( function() {
     	//check for single empty record ,then disable submit
     	if($('input', table.cell({ row: 0, column: 1 }).node()).val().trim() === ''){
@@ -14,14 +69,112 @@ $(document).ready(function() {
     	var tableSize =  $('#item-table tbody tr').length;
     	table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {       
             var descriptionCell = table.cell({ row: rowIdx, column: 1 }).node();
-            console.log($('input', descriptionCell).val());
             if($('input', descriptionCell).val().trim()===''){
             	table.row(this).remove().draw(false);
             	var count=rowIdx;
             	console.log('row '+(count+1)+' removed as it is empty.');
             }
         });
+    	calculateTotalBillAmount();
+    	callAjax();
     } );
+    /**
+     * 
+     */
+    function callAjax() {
+    	var dataParam=getData();
+        var ajaxurl = window.location.href+'/submit';
+        if (ajaxurl && ajaxurl.length>0) {
+        	 var _getData = getData();
+                var ajax_args = {
+                	headers: { 'Accept': 'application/json',
+                            'Content-Type': 'application/json' 
+                        },
+                    url: ajaxurl,
+                    type: "POST",
+                    data: JSON.stringify(_getData),
+                    dataType: "json",
+                    beforeSend: function(){
+//                        $this.loader.show();
+                    },
+                    error: function(){
+//                        $this.loader.hide();
+                    },
+                    success: function(res){
+//                        $this.loader.hide();
+                        if(res.isSuccessful){
+                        	 console.log('sucesssss');
+                        }
+                    }
+                };
+                $.ajax(ajax_args);
+	}
+    }
+    
+    /**
+     * get All data from the components in page.
+     */
+    function getData() {
+    	var dataParam={};
+    	var invoiceNumber = $('#invoice-number-text-input').val();
+		var invoiceDate = $('.invoice-date-picker').val();
+		var customerName = $('#customer-name-text-input').val();
+		var gender = $('input[name=gender]:checked', '.gender-radio-button').val();
+		var addressLine1 = $('#address-line-1-input').val();
+		var addressLine2 = $('#address-line-2-input').val();
+		var addressLine3 = $('#address-line-3-input').val();
+		var country =  $('select#country-select option:selected').val();
+		var phoneNumber = $('#phone-number-input').val();
+		var taxPercentage = $('#tax-text-input').val();
+		var shippingCharges = $('#shipping-charges-text-input').val();
+		var totalTable = $('#total-table').DataTable();
+		var subTotalAmount = $('#sub-total').text();
+		var taxAmount = $('#tax-charges').text();
+		var totalBillAmount = $('#total-bill-amount').text();
+		var table = $('#item-table').DataTable();
+		var tableData=[];
+		table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {  
+			var rowData={};
+			var serialNumberValue = (rowIdx+1);
+            var itemDescriptionCell = table.cell({ row: rowIdx, column: 1 }).node();
+            var itemDescriptionValue = $('input', itemDescriptionCell).val();
+            var itemQuantityCell = table.cell({ row: rowIdx, column: 2 }).node();
+            var itemQuantityValue = $('input', itemQuantityCell).val();
+            var itemRateCell = table.cell({ row: rowIdx, column: 3 }).node();
+            var itemRateValue = $('input', itemRateCell).val();
+            var itemAmountCell = table.cell({ row: rowIdx, column: 4 }).node();
+            var itemAmountValue = $('span', itemAmountCell).text();
+            rowData={
+            		'serialNumber':serialNumberValue,
+            		'itemDescription':itemDescriptionValue,
+            		'itemQuantity':itemQuantityValue,
+            		'itemRate':itemRateValue,
+            		'amount':itemAmountValue
+            }
+            tableData.push(rowData);
+        });
+		dataParam={
+				'invoiceNumber':invoiceNumber,
+				'invoiceDate':invoiceDate,
+				'customerName':customerName,
+				'gender':gender,
+				'addressLine1':addressLine1,
+				'addressLine2':addressLine2,
+				'addressLine3':addressLine3,
+				'country':country,
+				'phoneNumber':phoneNumber,
+				'itemDetailsList':tableData,
+				'taxPercentage':taxPercentage,
+				'shippingCharges':shippingCharges,
+				'subTotalAmount':subTotalAmount,
+				'taxAmount':taxAmount,
+				'totalBillAmount':totalBillAmount
+				
+		}
+		return dataParam;
+		console.log(dataParam);
+	}
+    
     
     var table = $('#item-table').DataTable();
     var counter = 1;
@@ -47,6 +200,7 @@ $(document).ready(function() {
         counter = 1;
         constructTable(table,counter);
         calculateAmount();
+        calculateTotalBillAmount();
         $('.table-input').bind('change', function(e) {
         	$(this).parent().attr('data-search',$(this).val());
         	$(this).parent().attr('data-order',$(this).val());
@@ -80,7 +234,40 @@ function calculateAmount(){
         $('#item-amount'+rowNumber).text(formattedAmount);
         $('#item-amount'+rowNumber).parent().attr('data-order',$('#item-amount'+rowNumber).text());
    	 	$('#item-amount'+rowNumber).parent().attr('data-search',$('#item-amount'+rowNumber).text());
+   	 	calculateTotalBillAmount();
     });
+}
+/**
+ * calculateTotalBillAmount to calculate total bill amount
+ * 
+ * @returns
+ */
+function calculateTotalBillAmount(){
+	var table = $('#item-table').DataTable();
+	var totalTable = $('#total-table').DataTable();
+	var tax = $('#tax-text-input').val();
+	var getUnformattedTax=tax.replace(/[% ,]/g,'');
+	var shippingCharges = $('#shipping-charges-text-input').val();
+	var getUnformattedshippingCharges = shippingCharges.replace(/[₹ ,]/g,'');
+	var formattedshippingCharges=parseFloat(getUnformattedshippingCharges);
+	var totalAmount=0;
+	table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {       
+        var itemAmountCell = table.cell({ row: rowIdx, column: 4 }).node();
+        var itemAmountValue = $('span', itemAmountCell).text();
+        var getUnformattedAmount = itemAmountValue.replace(/[₹ ,]/g,'');
+        totalAmount=parseFloat(getUnformattedAmount)+parseFloat(totalAmount);
+    });
+	var formattedTotalAmount=formatAmount(totalAmount, "₹ ");
+	$('#sub-total').text(formattedTotalAmount);
+	
+	var taxAmount=((parseFloat(getUnformattedTax).toFixed(2)*totalAmount)/100);
+	$('#tax-charges').text(formatAmount(taxAmount, "₹ "));
+	
+	$('#shipping-charges').text(shippingCharges);
+	
+	var totalBillAmount=parseFloat(totalAmount+taxAmount+formattedshippingCharges).toFixed(2);
+	
+	$('#total-bill-amount').text(formatAmount(totalBillAmount, "₹ "));
 }
 
 /**
@@ -153,8 +340,9 @@ function constructTable(table,counter){
  * @returns String
  */
 function formatAmount(unformattedAmount, currency) {
-    return currency + " " + unformattedAmount.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+    return currency + " " + parseFloat(unformattedAmount).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
 }
+
 /**
  * checkDescriptionInput method to check whether description is empty or not
  * @param event

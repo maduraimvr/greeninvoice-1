@@ -87,13 +87,13 @@
                     <div class="row" id="invoice-number-row">
   					<div class="col-md-4 col-xs-12 col-sm-4 col-lg-4">
   						<label>Invoice Number</label>
-                        <input id="invoice_number_text_input"type="text" class="form-control" value="${invoiceNumber}" readonly="readonly" >
+                        <input id="invoice-number-text-input"type="text" class="form-control" value="${invoiceNumber}" readonly="readonly" >
 					</div>
   						<div class="col-md-4 col-md-offset-4 col-xs-12 col-sm-4 col-sm-offset-4 col-lg-4 col-lg-offset-4"><label>Invoice Date</label>
                       	<div class="control-group">
 						<div class="controls">
 							<div class="col-md-9 xdisplay_inputx form-group has-feedback">
-								<input type="text" class="form-control has-feedback-left"
+								<input type="text" class="form-control has-feedback-left invoice-date-picker"
 									id="single_cal1" placeholder="Invoice Date"
 									aria-describedby="inputSuccess2Status"> <span
 									class="glyphicon glyphicon-calendar fa fa-calendar form-control-feedback left"
@@ -111,7 +111,7 @@
                         <label class="control-label col-md-2 col-sm-2 col-xs-12" for="name">Name <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input id="customer-name" class="form-control col-md-7 col-xs-12" data-validate-length-range="6" data-validate-words="2" name="name" placeholder="both name(s) e.g Steve Jobs" required="required" type="text">
+                          <input id="customer-name-text-input" class="form-control col-md-7 col-xs-12" data-validate-length-range="6" data-validate-words="2" name="name" placeholder="both name(s) e.g Steve Jobs" required="required" type="text">
                         </div>
                       </div>
                     <div class="item form-group col-md-4 col-sm-12 col-sm-12">
@@ -150,7 +150,7 @@
                         </div>
                    	</div>
                    	</div>
-                   	<div class="row" id="customer-address-line-2-row">
+                   	<div class="row" id="customer-address-line-3-row">
                    	<div class="item form-group col-md-8 col-sm-12 col-xs-12 ">
                         <div class="col-md-6 col-md-offset-2 col-sm-6 col-sm-offset-2 col-xs-12">
                           <input id="address-line-3-input" class="form-control col-md-7 col-xs-12" data-validate-length-range="6" name="addressline3" placeholder="enter the city" required="required" type="text">
@@ -159,7 +159,7 @@
                    	<div class="item form-group col-md-4 col-sm-12 col-sm-12">
                    	<label class="control-label col-md-3 col-sm-2 col-xs-12">Phone</label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
-                          <input type="text" class="form-control" data-inputmask="'mask' : '99-99999999'">
+                          <input type="text" id="phone-number-input" class="form-control" data-inputmask="'mask' : '99-99999999'">
                           <span class="fa fa-phone form-control-feedback right" aria-hidden="true"></span>
                         </div>
                    	</div>
@@ -185,12 +185,57 @@
 				    </table>
 				    </div>
                     <!-- DATA TABLE ENDS -->
-                      <div class="form-group">
-                        <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-						  <button class="btn btn-primary" type="reset">Reset</button>
-                          <button type="submit" id="submit" class="btn btn-success" disabled="disabled">Submit</button>
+                    <div class="row">
+                        <!-- additional charges column -->
+                        <div class="col-xs-6 additional-charges-col">
+                         <div class="col-xs-12 col-sm-6 tax-label-col form-group">
+                        	<label class="control-label" for="tax">Tax Percentage </label>
+						</div>
+						<div class="col-xs-12 col-sm-6 tax-input-col form-group">
+                        	<input id="tax-text-input" class="form-control additional-charges-input" name="tax-input" placeholder="Enter tax percentage" type="text">
+						</div>
+                        <div class="col-xs-12 col-sm-6 shipping-label-col form-group">
+                        	<label class="control-label" for="shipping-charges">Shipping Charges </label>
+						</div>
+						<div class="col-xs-12 col-sm-6 shipping-input-col form-group">
+                        	<input id="shipping-charges-text-input" class="form-control additional-charges-input" name="shipping-charges" placeholder="Enter shipping charges" type="text">
+						</div>
+                        
                         </div>
+                        <!-- /.col -->
+                        <div class="col-xs-6">
+                        <p class="lead">Amount Information</p>
+                          <div class="table-responsive">
+                            <table id="total-table" class="table">
+                              <tbody>
+                                <tr>
+                                  <th style="width:50%">Subtotal:</th>
+                                  <td id="sub-total">₹ 0.00</td>
+                                </tr>
+                                <tr>
+                                  <th id="tax-percentage">Tax (0%)</th>
+                                  <td id=tax-charges>₹ 0.00</td>
+                                </tr>
+                                <tr>
+                                  <th>Shipping:</th>
+                                  <td id="shipping-charges">₹ 0.00</td>
+                                </tr>
+                                <tr>
+                                  <th>Total:</th>
+                                  <td id="total-bill-amount">₹ 0.00</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <!-- /.col -->
                       </div>
+                      <div class="row">
+                      <div class="form-group text-center">
+						  <button class="btn btn-primary" type="reset">Reset</button>
+                          <button class="btn btn-success" type="submit" id="submit" disabled="disabled">Submit</button>
+                      </div>
+                      </div>                      
                     </form>
                   </div>
                 </div>

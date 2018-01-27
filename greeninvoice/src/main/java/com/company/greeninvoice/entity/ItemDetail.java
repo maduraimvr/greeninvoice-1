@@ -1,6 +1,7 @@
 package com.company.greeninvoice.entity;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,8 +21,7 @@ import lombok.Data;
 public class ItemDetail  implements Serializable{
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int itemId;
+	private Timestamp createdTime;
 	
 	 private String serialNumber;
 	

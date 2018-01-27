@@ -1,5 +1,8 @@
 package com.company.greeninvoice.service;
 
+import java.text.ParseException;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,4 +19,12 @@ public interface InvoiceService {
 	 * @return invoiceNumber
 	 */
 	String generateInvoiceNumber();
+
+	/**
+	 * addInvoice method to insert a new invoice.
+	 * 
+	 * @param parameterMap
+	 * @throws ParseException
+	 */
+	void addInvoice(Map<String, Object> parameterMap) throws ParseException;
 }

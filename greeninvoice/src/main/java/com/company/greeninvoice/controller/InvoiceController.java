@@ -3,19 +3,29 @@
  */
 package com.company.greeninvoice.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.company.greeninvoice.dto.Customer;
+import com.company.greeninvoice.dto.Invoice;
 import com.company.greeninvoice.dto.User;
+import com.company.greeninvoice.entity.Address;
+import com.company.greeninvoice.entity.ItemDetail;
 import com.company.greeninvoice.service.InvoiceService;
 import com.company.greeninvoice.service.UserService;
 
@@ -63,6 +73,22 @@ public class InvoiceController {
 	    modelAndView.addAllObjects(businessDataMap);
 	    modelAndView.setViewName(ADD_INVOICE_VIEW);
 	    return modelAndView;
+    }
+    
+    /**
+     * submitInvoice method gets called when invoice is submitted.
+     * 
+     * @param parameterMap
+     * @return businessMap
+     * @throws ParseException
+     */
+    @RequestMapping(value="/invoice/add/submit", method=RequestMethod.POST,
+            produces="application/json")
+    public @ResponseBody Map<String,Object> submitInvoice(@RequestBody Map<String,Object> parameterMap) throws ParseException{
+    	invoiceService.addInvoice(parameterMap);
+	Map<String,Object> businessMap=new HashMap<>();
+	businessMap.put("isSuccessful", true);
+	return businessMap;
     }
     
 }
